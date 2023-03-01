@@ -8,3 +8,5 @@ This is what I set up to manage the automated downloading, sorting and playing o
 
 This download box is based on several tools integrated to work together. They are open-source and deployed as Docker containers.
 
+Deployment and configuration are detailed below.
+
