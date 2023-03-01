@@ -1,92 +1,100 @@
 version: "3.4"
 services:
   deluge:
-    container_name: netflux_deluge
     image: linuxserver/deluge:latest
+    container_name: download-box_deluge
     restart: always
-    network_mode: host
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    ports:
+      - "127.0.0.1:8112:8112"
     volumes:
       - ${ROOT}/downloads:/downloads
-      - ${ROOT}/config/deluge:/config
+      - ${ROOT}/conf/deluge:/config
+    networks:
+      - default
 
   jackett:
-    container_name: netflux_jackett
     image: linuxserver/jackett:latest
+    container_name: download-box_jackett
     restart: unless-stopped
-    network_mode: host
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    ports:
+      - "127.0.0.1:9117:9117"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT}/downloads/torrent-blackhole:/download
-      - ${ROOT}/config/jackett:/config
+      - ${ROOT}/conf/jackett:/config
+    networks:
+      - default
 
   sonarr:
-    container_name: netflux_sonarr
     image: linuxserver/sonarr:latest
+    container_name: download-box_sonarr
     restart: unless-stopped
-    network_mode: host
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    ports:
+      - "127.0.0.1:8989:8989"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/sonarr:/config
-      - ${ROOT}/complete/series:/tv
+      - ${ROOT}/conf/sonarr:/config
+      - ${ROOT}/complete/series:/series
       - ${ROOT}/downloads:/downloads
+    networks:
+      - default
 
   radarr:
-    container_name: netflux_radarr
     image: linuxserver/radarr:latest
+    container_name: download-box_radarr
     restart: unless-stopped
-    network_mode: host
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    ports:
+      - "127.0.0.1:7878:7878"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/radarr:/config
+      - ${ROOT}/conf/radarr:/config
       - ${ROOT}/complete/movies:/movies
       - ${ROOT}/downloads:/downloads
+    networks:
+      - default
 
   jellyfin:
     image: linuxserver/jellyfin:latest
-    container_name: netflux_jellyfin
+    container_name: download-box_jellyfin
+    restart: unless-stopped
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-    volumes:
-      - ${ROOT}/config/jellyfin:/config
-      - ${ROOT}/complete/movies:/data/movies
-      - ${ROOT}/complete/series:/data/tvshows
     ports:
-      - 5678:5678
-    network_mode: host
-    restart: unless-stopped
-    
+      - "127.0.0.1:8096:8096"
+    volumes:
+      - ${ROOT}/conf/jellyfin:/config
+      - ${ROOT}/complete/movies:/data/movies
+      - ${ROOT}/complete/series:/data/series
+
   nginx:
     image: nginx:latest
-    container_name: nginx
+    container_name: download-box_nginx
     restart: unless-stopped
     ports:
       - 80:80
       - 443:443
     volumes:
-      - /docker/nginx/conf/:/etc/nginx/conf.d
-    networks:
-      - download-box
-      - default
-
-networks:
-  download-box:
-    internal: true
-  default:
+      - ${ROOT}/conf/nginx:/etc/nginx/conf.d
+      - ${ROOT}/conf/nginx/ssl/jellyfin:/etc/nginx/ssl/jellyfin
+      - ${ROOT}/conf/nginx/ssl/deluge:/etc/nginx/ssl/deluge
+      - ${ROOT}/conf/nginx/ssl/radarr:/etc/nginx/ssl/radarr
+      - ${ROOT}/conf/nginx/ssl/sonarr:/etc/nginx/ssl/sonarr
+      - ${ROOT}/conf/nginx/ssl/jackett:/etc/nginx/ssl/jackett
