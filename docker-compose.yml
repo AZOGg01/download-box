@@ -6,12 +6,12 @@ services:
     restart: always
     network_mode: host
     environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
-      - ${ROOT}/downloads:/downloads # downloads folder
-      - ${ROOT}/config/deluge:/config # config files
+      - ${ROOT}/downloads:/downloads
+      - ${ROOT}/config/deluge:/config
 
   jackett:
     container_name: netflux_jackett
@@ -19,13 +19,13 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
-      - ${ROOT}/config/jackett:/config # config files
+      - ${ROOT}/downloads/torrent-blackhole:/download
+      - ${ROOT}/config/jackett:/config
 
   sonarr:
     container_name: netflux_sonarr
@@ -33,14 +33,14 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/sonarr:/config # config files
-      - ${ROOT}/complete/series:/tv # tv shows folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ${ROOT}/config/sonarr:/config
+      - ${ROOT}/complete/series:/tv
+      - ${ROOT}/downloads:/downloads
 
   radarr:
     container_name: netflux_radarr
@@ -48,14 +48,14 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/radarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ${ROOT}/config/radarr:/config
+      - ${ROOT}/complete/movies:/movies
+      - ${ROOT}/downloads:/downloads
 
   jellyfin:
     image: linuxserver/jellyfin:latest
@@ -82,10 +82,11 @@ services:
       - 443:443
     volumes:
       - /docker/nginx/conf/:/etc/nginx/conf.d
-      - /docker/nginx/ssl/azogg.fr:/certificates/azogg.fr:ro
-      - /docker/nginx/ssl/dl.azogg.fr:/certificates/dl.azogg.fr:ro
-      - /docker/nginx/dl:/dl:ro
     networks:
-      - nginx-ctfd
+      - download-box
       - default
 
+networks:
+  download-box:
+    internal: true
+  default:
